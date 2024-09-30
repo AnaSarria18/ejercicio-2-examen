@@ -1,101 +1,106 @@
+/* Clase Habitacion */
 class Habitacion {
-    constructor(numero, tipo) {
-        this.numero = numero;
+    constructor(numeroHabitacion, tipo) {
+        this.numeroHabitacion = numeroHabitacion;
         this.tipo = tipo;
-        this.disponible = true; 
+        this.disponible = true;
+    }
+
+    /* Método para alquilar una habitación */
+    alquilar() {
+        if (this.disponible) {
+            this.disponible = false;
+            return `Habitación ${this.numeroHabitacion} ha sido alquilada.`;
+        } else {
+            return `La habitación ${this.numeroHabitacion} ya está ocupada.`;
+        }
+    }
+
+    /* Método para liberar una habitación */
+    liberar() {
+        if (!this.disponible) {
+            this.disponible = true;
+            return `Habitación ${this.numeroHabitacion} ha sido liberada.`;
+        } else {
+            return `La habitación ${this.numeroHabitacion} ya está disponible.`;
+        }
     }
 }
 
+/* Clase Hotel */
 class Hotel {
     constructor() {
-        this.habitaciones = []; 
+        this.habitaciones = [
+            new Habitacion(200, "simple"),
+            new Habitacion(201, "doble"),
+            new Habitacion(202, "suite")
+        ];
     }
 
-    agregarHabitacion(habitacion) {
-        this.habitaciones.push(habitacion);
-    }
-
-    alquilarHabitacion(numero) {
-        const habitacion = this.habitaciones.find(h => h.numero === numero);
-        if (habitacion && habitacion.disponible) {
-            habitacion.disponible = false;
-            alert(`La habitación ${numero} ha sido alquilada.`);
-        } else {
-            alert(`La habitación ${numero} no está disponible .`);
+    /* Método para alquilar una habitación */
+    alquilarHabitacion(numeroHabitacion) {
+        for (let habitacion of this.habitaciones) {
+            if (habitacion.numeroHabitacion === numeroHabitacion) {
+                return habitacion.alquilar();
+            }
         }
+        return `Habitación no encontrada.`;
     }
 
-    liberarHabitacion(numero) {
-        const habitacion = this.habitaciones.find(h => h.numero === numero);
-        if (habitacion && !habitacion.disponible) {
-            habitacion.disponible = true;
-            alert(`La habitación ${numero} ha sido liberada.`);
-        } else {
-            alert(`La habitación ${numero} ya está disponible .`);
+    /* Método para liberar una habitación */
+    liberarHabitacion(numeroHabitacion) {
+        for (let habitacion of this.habitaciones) {
+            if (habitacion.numeroHabitacion === numeroHabitacion) {
+                return habitacion.liberar();
+            }
         }
+        return `Habitación no encontrada.`;
     }
 
+    /* Método para mostrar las habitaciones disponibles */
     mostrarHabitacionesDisponibles() {
-        const disponibles = this.habitaciones.filter(h => h.disponible);
-        let detalles = 'Habitaciones disponibles:\n';
-        if (disponibles.length > 0) {
-            disponibles.forEach(h => {
-                detalles += `Número: ${h.numero}, Tipo: ${h.tipo}\n`;
-            });
-        } else {
-            detalles = 'No hay habitaciones disponibles.';
+        let disponibles = [];
+        for (let habitacion of this.habitaciones) {
+            if (habitacion.disponible) {
+                disponibles.push(`Habitación ${habitacion.numeroHabitacion} (${habitacion.tipo}) disponible`);
+            }
         }
-        document.getElementById('detalles').innerText = detalles;
+        return disponibles;
     }
 }
 
-// instancia de hotel
+/* Instancia del hotel */
 const hotel = new Hotel();
 
-// Manejar el evento de agregar habitación
-document.getElementById('agregarHabitacion').addEventListener('click', () => {
-    const numero = document.getElementById('numeroHabitacion').value;
-    const tipo = document.getElementById('tipoHabitacion').value;
+/* Función para alquilar una habitación */
+function alquilarHabitacion() {
+    let numero = parseInt(document.getElementById("alquilarNumero").value);
+    let resul = hotel.alquilarHabitacion(numero);
+    alert(resul);
+    actualizarHabitaciones();
+}
 
-    if (!numero || !tipo) {
-        alert('Por favor, ingresa el número de habitación y el tipo.');
-        return;
+/* Función para liberar una habitación */
+function liberarHabitacion() {
+    let numero = parseInt(document.getElementById("liberarNumero").value);
+    let r = hotel.liberarHabitacion(numero);
+    alert(r);
+    actualizarHabitaciones();
+}
+
+/* Función para actualizar las habitaciones disponibles */
+function actualizarHabitaciones() {
+    let habita = document.getElementById("habitaciones");
+    habita.innerHTML = ""; 
+
+    let Hdisponibles = hotel.mostrarHabitacionesDisponibles();
+    for (let i = 0; i < Hdisponibles.length; i++) {
+        habita.innerHTML += `<p>${Hdisponibles[i]}</p>`; 
     }
 
-    const habitacion = new Habitacion(numero, tipo);
-    hotel.agregarHabitacion(habitacion);
-    alert(`Habitación ${numero} de tipo ${tipo} agregada.`);
-    document.getElementById('numeroHabitacion').value = '';
-    document.getElementById('tipoHabitacion').value = '';
-});
-
-// Manejar el evento de alquilar habitación
-document.getElementById('alquilarHabitacion').addEventListener('click', () => {
-    const numero = document.getElementById('numeroAlquilar').value;
-
-    if (!numero) {
-        alert('Por favor, ingresa el número de habitación.');
-        return;
+    if (Hdisponibles.length === 0) {
+        habita.innerHTML = "<p>No hay habitaciones disponibles.</p>"; 
     }
+}
 
-    hotel.alquilarHabitacion(numero);
-    document.getElementById('numeroAlquilar').value = '';
-});
-
-// Manejar el evento de liberar habitación
-document.getElementById('liberarHabitacion').addEventListener('click', () => {
-    const numero = document.getElementById('numeroLiberar').value;
-
-    if (!numero) {
-        alert('Por favor, ingresa el número de habitación.');
-        return;
-    }
-
-    hotel.liberarHabitacion(numero);
-    document.getElementById('numeroLiberar').value = '';
-});
-
-// Manejar el evento de mostrar habitaciones disponibles
-document.getElementById('mostrarDisponibles').addEventListener('click', () => {
-    hotel.mostrarHabitacionesDisponibles();
-});
+actualizarHabitaciones();
